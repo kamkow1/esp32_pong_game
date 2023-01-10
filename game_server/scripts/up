@@ -1,0 +1,3 @@
+#!/bin/sh
+
+idf.py -p /dev/ttyUSB0 -b 115200 flash monitor
