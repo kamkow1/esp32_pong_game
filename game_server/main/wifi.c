@@ -26,16 +26,16 @@ void event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, voi
         if (s_retry_num < WIFI_MAX_RETRY) {
             esp_wifi_connect();
             s_retry_num++;
-            ESP_LOGI(TAG, "retrying to connect to wifi");
+            ESP_LOGI(WIFI_TAG, "retrying to connect to wifi");
         } else {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
 
-        ESP_LOGI(TAG, "failed to connect to wifi");
+        ESP_LOGI(WIFI_TAG, "failed to connect to wifi");
     }
     if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t *event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "got ip: " IPSTR, IP2STR(&event->ip_info.ip));
+        ESP_LOGI(WIFI_TAG, "got ip: " IPSTR, IP2STR(&event->ip_info.ip));
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
 }
@@ -81,7 +81,7 @@ void wifi_init_sta()
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    ESP_LOGI(TAG, "wifi_init_sta finished");
+    ESP_LOGI(WIFI_TAG, "wifi_init_sta finished");
 
     EventBits_t ebits = xEventGroupWaitBits(
         s_wifi_event_group,
@@ -91,8 +91,8 @@ void wifi_init_sta()
         portMAX_DELAY
     );
 
-    if (ebits & WIFI_CONNECTED_BIT)  ESP_LOGI(TAG, "connected to [SSID: %s, PASSOWRD: %s]", WIFI_SSID, WIFI_PASSWORD);
-    if (ebits & WIFI_FAIL_BIT)      ESP_LOGI(TAG, "failed to connect to [SSID: %s, PASSOWRD: %s]", WIFI_SSID, WIFI_PASSWORD);
+    if (ebits & WIFI_CONNECTED_BIT)  ESP_LOGI(WIFI_TAG, "connected to [SSID: %s, PASSOWRD: %s]", WIFI_SSID, WIFI_PASSWORD);
+    if (ebits & WIFI_FAIL_BIT)      ESP_LOGI(WIFI_TAG, "failed to connect to [SSID: %s, PASSOWRD: %s]", WIFI_SSID, WIFI_PASSWORD);
 
     ESP_ERROR_CHECK(esp_event_handler_instance_unregister(
         IP_EVENT,
@@ -111,14 +111,7 @@ void wifi_init_sta()
 
 void start_wifi()
 {
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
-    }
-
-    ESP_ERROR_CHECK(ret);
-    ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
+    ESP_LOGI(WIFI_TAG, "ESP_WIFI_MODE_STA");
     wifi_init_sta();
 }
 

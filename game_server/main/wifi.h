@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "esp_event.h"
 
-#define TAG                 "wifi_station"
+#define WIFI_TAG            "wifi_station"
 #define WIFI_MAX_RETRY      5
 #define WIFI_CONNECTED_BIT  BIT0
 #define WIFI_FAIL_BIT       BIT1
