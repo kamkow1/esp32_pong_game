@@ -1,2 +1,4 @@
 build
 main/wifi_creds.h
+.cache
+test-2

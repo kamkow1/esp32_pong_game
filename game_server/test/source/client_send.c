@@ -9,6 +9,8 @@
 #include <arpa/inet.h>
 #include <signal.h>
 
+#include "lib.h"
+
 #define MESSAGE_BUFF_MAX        1000
 #define ESP32_LOCAL_NETWORK_IP  "192.168.1.100"
 #define PORT                    80
@@ -22,23 +24,27 @@ void sigint_handler(int sig) {
     close(sockfd);
 }
 
-int main()
+#define TEST_MESSAGE "this is a test message";  
+
+void client_send_test(TestResult *test_result)
 {
+    test_result->return_code = 0;
+    test_result->test_name   = "sending data from game client to the server";
+
     struct sigaction sa;
     sa.sa_handler = sigint_handler;
     sa.sa_flags = 0;
     sigemptyset(&sa.sa_mask);
 
-    if (sigaction(SIGINT, &sa, NULL) == -1) perror("sigaction"), exit(1);
+    if (sigaction(SIGINT, &sa, NULL) == -1) { perror("sigaction"); TEST_FAILED; }
 
     struct sockaddr_in server;
-    char message[MESSAGE_BUFF_MAX];
-    message[MESSAGE_BUFF_MAX] = '\0';
+    char *message = TEST_MESSAGE;
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
         printf("failed to create the socket: %d\n", errno);
-        exit(1);
+        TEST_FAILED;
     }
 
     printf("created the socket: sockfd = %d\n", sockfd);
@@ -49,31 +55,17 @@ int main()
 
     if (connect(sockfd, (struct sockaddr*)&server, sizeof(server)) < 0) {
         printf("failed to connect to the server\n");
-        exit(1);
+        TEST_FAILED;
     }
 
-    printf("connected to the socket\n");
-
-    printf("send message: ");
-    scanf("%s", message);
-        
+    printf("connected to the socket\n"); 
     printf("sending: %s\n", message);
 
     if (send(sockfd, message, strlen(message), 0) < 0) {
         printf("failed to send the message\n");
-        exit(1);
+        TEST_FAILED;
     } 
 
-    /*
-    if (recv(sockfd, server_reply, MESSAGE_BUFF_MAX * 2, 0) < 0) {
-        printf("failed to receive data from the server\n");
-        exit(1);
-    }
-
-    printf("the server replied: %s\n", server_reply);
-    */
-
     close(sockfd);
-
-    return 0;
+    TEST_PASSED;
 }
