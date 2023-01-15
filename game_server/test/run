@@ -1,0 +1,11 @@
+#!/bin/sh
+
+for test_case in ./*.c; do
+    exec_name="${test_case%.*}"
+    if cc -Wall -Wextra -o "$exec_name" "$test_case" && ./"$exec_name"; then
+        echo "[\e[32mok\e[0m] test $test_case passed"
+    else
+        echo "[\e[31mfail\e[0m] test $test_case failed"
+    fi
+done
+

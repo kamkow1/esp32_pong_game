@@ -32,7 +32,7 @@ int main()
     if (sigaction(SIGINT, &sa, NULL) == -1) perror("sigaction"), exit(1);
 
     struct sockaddr_in server;
-    char message[MESSAGE_BUFF_MAX], server_reply[MESSAGE_BUFF_MAX * 2];
+    char message[MESSAGE_BUFF_MAX];
     message[MESSAGE_BUFF_MAX] = '\0';
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
