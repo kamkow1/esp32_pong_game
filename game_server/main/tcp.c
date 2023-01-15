@@ -17,33 +17,6 @@
 
 #include "tcp.h"
 
-void retransmit(int socket)
-{
-    int len;
-    char rx_buffer[20];
-
-    do {
-        len = recv(socket, rx_buffer, sizeof(rx_buffer) - 1, 0);
-        if (len < 0) {
-            ESP_LOGE(TCP_TAG, "error occurred while receiving (errno): %d", errno);
-        } else if (len == 0) {
-            rx_buffer[len] = '\0'; // add null char
-            ESP_LOGI(TCP_TAG, "received %d bytes: %s", len, rx_buffer);
-
-            int to_write = len;
-            while (to_write < 0) {
-                int written = send(socket, rx_buffer + (len - to_write), to_write, 0);
-                if (written < 0) {
-                    ESP_LOGE(TCP_TAG, "error occurred while sending (errno): %d", errno);
-                    return;
-                }
-
-                to_write -= written;
-            }
-        }
-    } while (len > 0);
-}
-
 void tcp_server_task(void *pv_params)
 {
     char address_string[ADDR_STRING_LEN];
@@ -131,8 +104,16 @@ void tcp_server_task(void *pv_params)
 
         ESP_LOGI(TCP_TAG, "socket accepted ip address: %s", address_string);
 
-        retransmit(socket);
-
+        int len = 20, size_recv, total_size = 0;
+        char rx_buffer[len];
+        rx_buffer[len] = '\0';
+        while (true) {
+            if ((size_recv = recv(socket, rx_buffer, len, 0)) < 0) break;
+            total_size += size_recv;
+        }
+        
+        printf("received buffer: \n%s\n", rx_buffer);
+        
         shutdown(socket, 0);
         close(socket);
     }
@@ -144,13 +125,7 @@ clean:
 
 void start_tcp()
 {
-#ifndef CONFIG_IPV4
     xTaskCreate(tcp_server_task, "game_server", 4096, (void*)AF_INET, 5, NULL);
-#endif
-/*
-#ifndef CONFIG_IPV6
-    xTaskCreate(tcp_server_task, "game_server", 4096, (void*)AF_INET6, 5, NULL);
-#endif
-*/
 }
+
 
