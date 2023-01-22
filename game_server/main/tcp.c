@@ -16,6 +16,9 @@
 #include "lwip/sys.h"
 
 #include "tcp.h"
+#include "msg.h"
+
+char RX_BUFFER[RX_BUFFER_MAX];
 
 void tcp_server_task(void *pv_params)
 {
@@ -104,16 +107,21 @@ void tcp_server_task(void *pv_params)
 
         ESP_LOGI(TCP_TAG, "socket accepted ip address: %s", address_string);
 
-        int len = 20, size_recv, total_size = 0;
-        char rx_buffer[len];
-        rx_buffer[len] = '\0';
+        int size_recv, total_size = 0;
+        RX_BUFFER[RX_BUFFER_MAX] = '\0';
         while (true) {
-            if ((size_recv = recv(socket, rx_buffer, len, 0)) < 0) break;
+            if ((size_recv = recv(socket, RX_BUFFER, RX_BUFFER_MAX, 0)) < 0) break;
             total_size += size_recv;
         }
+
+        // printf("RX_BUFFER: %s\n", RX_BUFFER); 
+        char tx_buffer[TX_BUFFER_MAX];
+        process_message(RX_BUFFER, tx_buffer);
+
+        ESP_LOGI(TCP_TAG, "sending back `%s`\n", tx_buffer);
         
-        printf("received buffer: \n%s\n", rx_buffer);
-        
+        if (write(socket, tx_buffer, sizeof(tx_buffer)) < 0) ESP_LOGE(TCP_TAG, "failed to send message `%`\n", tx_buffer);
+         
         shutdown(socket, 0);
         close(socket);
     }

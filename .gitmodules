@@ -1,0 +1,3 @@
+[submodule "game_server/libs/p99"]
+	path = game_server/libs/p99
+	url = https://github.com/jweyrich/p99.git
