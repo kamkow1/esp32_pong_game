@@ -107,22 +107,21 @@ void tcp_server_task(void *pv_params)
 
         ESP_LOGI(TCP_TAG, "socket accepted ip address: %s", address_string);
 
-        int size_recv, total_size = 0;
         RX_BUFFER[RX_BUFFER_MAX] = '\0';
-        while (true) {
-            if ((size_recv = recv(socket, RX_BUFFER, RX_BUFFER_MAX, 0)) < 0) break;
-            total_size += size_recv;
-        }
+        
+        int size_recv;
+        if ((size_recv = read(socket, RX_BUFFER, RX_BUFFER_MAX)) < 0) ESP_LOGE(TCP_TAG, "failed to receive message\n");
 
-        // printf("RX_BUFFER: %s\n", RX_BUFFER); 
+        printf("RX_BUFFER: %d, %s\n", size_recv, RX_BUFFER); 
         char tx_buffer[TX_BUFFER_MAX];
+        tx_buffer[TX_BUFFER_MAX] = '\0';
         process_message(RX_BUFFER, tx_buffer);
 
+        strcat(tx_buffer, "\n");
         ESP_LOGI(TCP_TAG, "sending back `%s`\n", tx_buffer);
-        
-        if (write(socket, tx_buffer, sizeof(tx_buffer)) < 0) ESP_LOGE(TCP_TAG, "failed to send message `%`\n", tx_buffer);
+
+        if (write(socket, tx_buffer, strlen(tx_buffer)) < 0) ESP_LOGE(TCP_TAG, "failed to send message `%s`\n", tx_buffer);
          
-        shutdown(socket, 0);
         close(socket);
     }
 

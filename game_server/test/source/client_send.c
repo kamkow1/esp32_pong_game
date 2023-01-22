@@ -12,6 +12,7 @@
 #include "lib.h"
 
 #define MESSAGE_BUFF_MAX        1000
+#define SERVER_REPLY_MAX        1000
 #define ESP32_LOCAL_NETWORK_IP  "192.168.1.100"
 #define PORT                    80
 
@@ -24,7 +25,7 @@ void sigint_handler(int sig) {
     close(sockfd);
 }
 
-#define TEST_MESSAGE "this is a test message";  
+#define TEST_MESSAGE "this is a test message"; 
 
 void client_send_test(TestResult *test_result)
 {
@@ -65,6 +66,15 @@ void client_send_test(TestResult *test_result)
         printf("failed to send the message\n");
         TEST_FAILED;
     } 
+
+    char server_reply[SERVER_REPLY_MAX];
+    //server_reply[SERVER_REPLY_MAX] = '\0';
+    if (recv(sockfd, server_reply, SERVER_REPLY_MAX, 0) < 0) {
+        printf("failed to receive a message\n"); 
+        TEST_FAILED;
+    }
+
+    printf("server_reply = %s\n", server_reply);
 
     close(sockfd);
     TEST_PASSED;
