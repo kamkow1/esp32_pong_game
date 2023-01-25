@@ -116,13 +116,12 @@ void tcp_server_task(void *pv_params)
         char tx_buffer[TX_BUFFER_MAX];
         tx_buffer[TX_BUFFER_MAX] = '\0';
         process_message(RX_BUFFER, tx_buffer);
-	memset(RX_BUFFER, 0, sizeof(RX_BUFFER));
+		memset(RX_BUFFER, 0, sizeof(RX_BUFFER));
 
         strcat(tx_buffer, "\n");
         ESP_LOGI(TCP_TAG, "sending back `%s`\n", tx_buffer);
 
         if (write(socket, tx_buffer, strlen(tx_buffer)) < 0) ESP_LOGE(TCP_TAG, "failed to send message `%s`\n", tx_buffer);
-	//memset(tx_buffer, 0, sizeof(tx_buffer));
          
         close(socket);
     }
