@@ -27,16 +27,10 @@ static char *MSG_STRING[] = {
 void process_message(char *rx_buffer, char *out_string)
 {
     if (!strncmp(rx_buffer, MSG_STRING[M_GAME_START], strlen(MSG_STRING[M_GAME_START]))) {
-        strcpy(out_string, MSG_STRING[M_OK]);
+	    strcpy(out_string, MSG_STRING[M_OK]);
+    } else if (!strncmp(rx_buffer, MSG_STRING[M_GAME_END], strlen(MSG_STRING[M_GAME_END]))) {
+	    strcpy(out_string, MSG_STRING[M_OK]);
     } else {
         strcpy(out_string, MSG_STRING[M_UNKNOWN_ACTION]);
     }
-
-    /*
-    if (!strcmp(rx_buffer, MSG_STRING[M_GAME_START])) {
-        strcpy(out_string, MSG_STRING[M_OK]);
-    } else {
-        strcpy(out_string, MSG_STRING[M_UNKNOWN_ACTION]);
-    }
-    */
 }

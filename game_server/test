@@ -11,6 +11,7 @@ ESP32_SERVER_PORT="80"
 
 M_OK="M_OK"
 M_GAME_START="M_GAME_START"
+M_GAME_END="M_GAME_END"
 
 echo "Running simple tests"
 
@@ -30,6 +31,12 @@ run_test_cmd()
 	echo "[$FG_COLOR_RED $1 $COLOR_RESET results ]: " $FG_COLOR_PURPLE $test_command $COLOR_RESET
 }
 
+# test 1
 print_pre_test_msg $M_GAME_START $M_OK
-run_test_cmd "test1" "sends the game start signal to the server, expects a positive M_OK response" $(echo "$M_GAME_START" | nc -w 1 "$ESP32_SERVER_IP" "$ESP32_SERVER_PORT")  
+run_test_cmd "test1" "sends the game start signal to the server, expects a positive M_OK response" $(echo "$M_GAME_START" | nc -w 1 "$ESP32_SERVER_IP" "$ESP32_SERVER_PORT")
+
+
+# test 2
+print_pre_test_msg $M_GAME_END $M_OK
+run_test_cmd "test2" "sends the game end signal to the server, expects a positive M_OK response - the game has ended correctly" $(echo "$M_GAME_END" | nc -w 1 "$ESP32_SERVER_IP" "$ESP32_SERVER_PORT")  
 
