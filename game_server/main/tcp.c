@@ -115,6 +115,9 @@ void tcp_server_task(void *pv_params)
         printf("RX_BUFFER: %d, %s\n", size_recv, RX_BUFFER); 
         char tx_buffer[TX_BUFFER_MAX];
         tx_buffer[TX_BUFFER_MAX] = '\0';
+
+		//sprintf(RX_BUFFER, "M_GAME_START|kamil|limak");
+		//ESP_LOGI(TCP_TAG, "overwritten buffer is: %s", RX_BUFFER);
         process_message(RX_BUFFER, tx_buffer);
 		memset(RX_BUFFER, 0, sizeof(RX_BUFFER));
 

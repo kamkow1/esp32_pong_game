@@ -3,6 +3,7 @@ idf_component_register(
         "wifi.c" 
         "tcp.c"
         "msg.c"
+		"game.c"
     INCLUDE_DIRS ""
 )
 
