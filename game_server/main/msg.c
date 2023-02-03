@@ -33,7 +33,6 @@ void process_message(char *rx_buffer, char *out_string)
 {
   // handle M_GAME_START
   if (!strncmp(rx_buffer, MSG_STRING[M_GAME_START], strlen(MSG_STRING[M_GAME_START]))) {
-
 	char *str = strtok(rx_buffer, ARG_SPLIT_DELIM);
 	char *split_args[MAX_ARGS];
 	split_args[MAX_ARGS] = ARGS_END_FLAG;
@@ -45,11 +44,18 @@ void process_message(char *rx_buffer, char *out_string)
 	  i++;
 	}
 
-	char *player1_name = split_args[1];
-	char *player2_name = split_args[2];
+	char *player1_name = split_args[1], *player2_name = split_args[2];
 	char *game_handler_status = game_start(player1_name, player2_name) ? MSG_STRING[M_OK] : MSG_STRING[M_FAIL];
-    strcpy(out_string, game_handler_status);
+  strcpy(out_string, game_handler_status);
+
+  reset_board(); 
+  update_player(PLAYER1);
+  update_player(PLAYER2);
+  debug_print_board();
+
+	// handle M_GAME_END
   } else if (!strncmp(rx_buffer, MSG_STRING[M_GAME_END], strlen(MSG_STRING[M_GAME_END]))) {
+	  game_end();
     strcpy(out_string, MSG_STRING[M_OK]);
   } else {
     strcpy(out_string, MSG_STRING[M_UNKNOWN_ACTION]);
