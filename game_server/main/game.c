@@ -12,18 +12,15 @@ bool   *BOARD;
 
 void debug_print_board()
 {
-  for (size_t x = 0; x < BOARD_WIDTH+2; x++) {
-    printf("#");
-  }
-
+  for (size_t x = 0; x < BOARD_WIDTH+2; x++) printf("#");
   printf("\n");
 
-	for (size_t x = 0; x < BOARD_WIDTH; x++) {
+  for (size_t x = 0; x < BOARD_WIDTH; x++) {
     printf("#");
     for (size_t y = 0; y < BOARD_HEIGHT; y++)
       if (BOARD[BOARD_WIDTH*x+y]) printf("X"); else printf(" ");
     printf("#\n");
-	}
+  }
 
   for (size_t x = 0; x < BOARD_WIDTH+2; x++) printf("#");
   printf("\n");
