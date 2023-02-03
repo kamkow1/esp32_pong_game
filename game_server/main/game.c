@@ -20,14 +20,13 @@ void debug_print_board()
 
 	for (size_t x = 0; x < BOARD_WIDTH; x++) {
     printf("#");
-	  for (size_t y = 0; y < BOARD_HEIGHT; y++)
-		  if (BOARD[BOARD_WIDTH*x+y]) printf("X"); else printf(" ");
-	  printf("#\n");
+    for (size_t y = 0; y < BOARD_HEIGHT; y++)
+      if (BOARD[BOARD_WIDTH*x+y]) printf("X"); else printf(" ");
+    printf("#\n");
 	}
 
-  for (size_t x = 0; x < BOARD_WIDTH+2; x++) {
-    printf("#");
-  }
+  for (size_t x = 0; x < BOARD_WIDTH+2; x++) printf("#");
+  printf("\n");
 }
 
 void init_player(Player *pl, char *player_name, size_t id)
@@ -41,8 +40,8 @@ void init_player(Player *pl, char *player_name, size_t id)
 void init_draw_players()
 {
   for (size_t x = 0; x < BOARD_WIDTH; ++x)
-	for (size_t y = 0; y < BOARD_HEIGHT; ++y)
-	  for (size_t player_y_size = 0; player_y_size < PLAYER_Y_SIZE; ++player_y_size) BOARD[BOARD_WIDTH*x+y] = true;
+    for (size_t y = 0; y < BOARD_HEIGHT; ++y)
+      for (size_t player_y_size = 0; player_y_size < PLAYER_Y_SIZE; ++player_y_size) BOARD[BOARD_WIDTH*x+y] = true;
 }
 
 bool game_start(char *player1_id, char *player2_id)
@@ -68,18 +67,12 @@ bool game_end()
 }
 
 void move_player(Player *player, size_t y) { player->y += y; }
-
-void set_x_y(size_t x, size_t y, bool s) {
-  BOARD[BOARD_WIDTH*x+y] = s;
-}
+void set_xy(size_t x, size_t y, bool s) { BOARD[BOARD_WIDTH*x+y] = s; }
 
 void reset_board()
 {
-  for (size_t x = 0; x < BOARD_WIDTH; ++x) {
-	  for (size_t y = 0; y < BOARD_HEIGHT; ++y) {
-      set_x_y(x, y, false);
-    }
-  }
+  for (size_t x = 0; x < BOARD_WIDTH; ++x)
+    for (size_t y = 0; y < BOARD_HEIGHT; ++y) set_xy(x, y, false);
 }
 
 void update_player(Player *pl)
@@ -98,8 +91,6 @@ void update_player(Player *pl)
 
   size_t y = pl->id == 1 ? 0 : BOARD_WIDTH - 1;
 
-  for (size_t x = pad_bottom; x < pad_top; x++) {
-    set_x_y(x, y, true);
-  }
+  for (size_t x = pad_bottom; x < pad_top; x++) set_xy(x, y, true);
 }
 
