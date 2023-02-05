@@ -117,7 +117,7 @@ void tcp_server_task(void *pv_params)
         tx_buffer[TX_BUFFER_MAX] = '\0';
 
         process_message(RX_BUFFER, tx_buffer);
-		memset(RX_BUFFER, 0, sizeof(RX_BUFFER));
+        memset(RX_BUFFER, 0, sizeof(RX_BUFFER));
 
         strcat(tx_buffer, "\n");
         ESP_LOGI(TCP_TAG, "sending back `%s`\n", tx_buffer);

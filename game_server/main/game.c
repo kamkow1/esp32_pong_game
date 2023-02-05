@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -6,23 +7,25 @@
 
 #include "game.h"
 
+#define MOVE_ASSERT(x) for (; x; assert(x))
+
 Player *PLAYER1;
 Player *PLAYER2;
 bool   *BOARD;
 
 void debug_print_board()
 {
-  for (size_t x = 0; x < BOARD_WIDTH+2; x++) printf("#");
+  for (size_t x = 0; x < BOARD_WIDTH+2; x++) printf("~");
   printf("\n");
 
   for (size_t x = 0; x < BOARD_WIDTH; x++) {
-    printf("#");
-    for (size_t y = 0; y < BOARD_HEIGHT; y++)
-      if (BOARD[BOARD_WIDTH*x+y]) printf("X"); else printf(" ");
-    printf("#\n");
+    printf("%c", 'a' + x);
+    for (size_t y = 0; y < BOARD_HEIGHT; y++) 
+      if (BOARD[BOARD_WIDTH*x+y]) printf("@"); else printf(" ");
+    printf("%c\n", 'a' + x);
   }
 
-  for (size_t x = 0; x < BOARD_WIDTH+2; x++) printf("#");
+  for (size_t x = 0; x < BOARD_WIDTH+2; x++) printf("~");
   printf("\n");
 }
 
@@ -64,6 +67,7 @@ bool game_end()
 }
 
 void move_player(Player *player, size_t y) { player->y += y; }
+
 void set_xy(size_t x, size_t y, bool s) { BOARD[BOARD_WIDTH*x+y] = s; }
 
 void reset_board()
@@ -76,18 +80,13 @@ void update_player(Player *pl)
 {
   int pad_bottom = pl->y-PLAYER_Y_SIZE;
   int pad_top    = pl->y+PLAYER_Y_SIZE;
-  if (pad_bottom < 0) {
-    ESP_LOGE(GAME_TAG, "pad is lowe than the board height");
-    return;
-  }
 
-  if (pad_top > BOARD_HEIGHT-1) {
-    ESP_LOGE(GAME_TAG, "pad is higher than the board height");
-    return;
-  }
+  if (pad_bottom < 0)           { printf("pad is lower than the board height\n");  return; }
+  if (pad_top > BOARD_HEIGHT-1) { printf("pad is higher than the board height\n"); return; }
 
-  size_t y = pl->id == 1 ? 0 : BOARD_WIDTH - 1;
+  //assert((pad_bottom < 0) && );
+  //assert((pad_top > BOARD_HEIGHT-1) && );
 
-  for (size_t x = pad_bottom; x < pad_top; x++) set_xy(x, y, true);
+  for (size_t x = pad_bottom; x < pad_top; x++) set_xy(x, pl->id == 1 ? 0 : BOARD_WIDTH - 1, true);
 }
 
