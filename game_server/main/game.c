@@ -7,8 +7,6 @@
 
 #include "game.h"
 
-#define MOVE_ASSERT(x) for (; x; assert(x))
-
 Player *PLAYER1;
 Player *PLAYER2;
 bool   *BOARD;
@@ -83,9 +81,6 @@ void update_player(Player *pl)
 
   if (pad_bottom < 0)           { printf("pad is lower than the board height\n");  return; }
   if (pad_top > BOARD_HEIGHT-1) { printf("pad is higher than the board height\n"); return; }
-
-  //assert((pad_bottom < 0) && );
-  //assert((pad_top > BOARD_HEIGHT-1) && );
 
   for (size_t x = pad_bottom; x < pad_top; x++) set_xy(x, pl->id == 1 ? 0 : BOARD_WIDTH - 1, true);
 }
