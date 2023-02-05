@@ -40,8 +40,6 @@ run_test_cmd()
 print_pre_test_msg $M_GAME_START $M_OK
 run_test_cmd "test1" "sends the game start signal to the server, expects a positive M_OK response" $(echo "$M_GAME_START|player1|player2" | nc -w 1 "$ESP32_SERVER_IP" "$ESP32_SERVER_PORT")
 
-
-
 # test 2.1
 # M_PLAYER_MOVE ( +2 ) 
 print_pre_test_msg $M_PLAYER_MOVE $M_OK 
