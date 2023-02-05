@@ -71,7 +71,9 @@ void process_message(char *rx_buffer, char *out_string)
     strcpy(out_string, MSG_STRING[M_OK]);
 
     reset_board(); 
-    update_player(pl);
+    //update_player(pl);
+    update_player(PLAYER1);
+    update_player(PLAYER2);
     debug_print_board();
 
 	// handle M_GAME_END

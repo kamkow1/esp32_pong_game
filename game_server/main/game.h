@@ -7,10 +7,10 @@
 #define BOARD_WIDTH   20 
 #define BOARD_HEIGHT  20
 #define PLAYER_HEIGHT 10
-#define PLAYER1_X_POS 3
-#define PLAYER2_X_POS (BOARD_WIDTH - PLAYER1_X_POS)
-#define PLAYER_Y_SIZE 2 // player y size is PLAYER_Y_SIZE*2
-                        // means + - 1 pixel from the middle of the pad
+
+// player y size is PLAYER_Y_SIZE*2 
+// means + - 1 pixel from the middle of the pad 
+#define PLAYER_Y_SIZE 2 
 #define GAME_TAG      "game"
 
 typedef struct {

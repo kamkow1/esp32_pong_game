@@ -64,13 +64,13 @@ bool game_end()
   return true;
 }
 
-void move_player(Player *player, size_t y) { player->y += y; }
-
-void set_xy(size_t x, size_t y, bool s) { BOARD[BOARD_WIDTH*x+y] = s; }
+// NOTE: `-=` is used because the directions in which we move are inverted
+void move_player(Player *player, size_t y) { player->y -= y; }
+void set_xy(size_t x, size_t y, bool s)    { BOARD[BOARD_WIDTH*x+y] = s; }
 
 void reset_board()
 {
-  for (size_t x = 0; x < BOARD_WIDTH; ++x)
+  for (size_t x = 0; x < BOARD_WIDTH; ++x) 
     for (size_t y = 0; y < BOARD_HEIGHT; ++y) set_xy(x, y, false);
 }
 
