@@ -25,8 +25,10 @@ void draw_text(SDL_Surface *screen, const char *text, int size, int x, int y, SD
   TTF_CloseFont(font);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+  EXIT_ON_ERROR(argc < 3, "please provide player the names: ./esp32_pong_game_client player1 player2");
+
   EXIT_ON_ERROR(SDL_Init(SDL_INIT_VIDEO) < 0, "failed to initialize SDL2: %s\n", SDL_GetError());
 
   SDL_Window *window     = SDL_CreateWindow(WINDOW_TITLE, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
@@ -56,6 +58,8 @@ int main()
               break;               
             }
             case SDLK_SPACE: {
+              printf("player1 = %s\n", argv[1]);
+              printf("player2 = %s\n", argv[2]);
               game_started = true; 
             }
           }  
