@@ -3,8 +3,10 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <string.h>
 
 #include "error.h"
+#include "server.h"
 
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
@@ -39,8 +41,9 @@ int main(int argc, char *argv[])
   EXIT_ON_ERROR(!renderer, "failed to crate the game renderer: %s\n", SDL_GetError());
 
   SDL_Event event;
-  bool quit         = false;
-  bool game_started = false;
+  bool quit           = false;
+  bool game_started   = false;
+  bool server_started = false;
 
   /*
    * Game control keys:
@@ -49,6 +52,19 @@ int main(int argc, char *argv[])
    */
 
   while (!quit) {
+    if (!server_started && game_started) { 
+      server_started = true; 
+      server_connect();
+
+      char buffer[MSG_BUFFER_MAX];
+      buffer[MSG_BUFFER_MAX] = '\0';
+      sprintf(buffer, M_GAME_START"|%s|%s", argv[1], argv[2]);
+
+      server_send(buffer);
+      char *response = server_read();
+      if (strncmp(response, M_OK, strlen(M_OK))) printf("reponse and sent message are incompatible!\n");
+    }
+
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_QUIT: { quit = true; break; }
@@ -76,6 +92,18 @@ int main(int argc, char *argv[])
     SDL_UpdateWindowSurface(window);
   }
 
+  if (game_started) {
+    // end the game
+    char buffer[MSG_BUFFER_MAX];
+    buffer[MSG_BUFFER_MAX] = '\0';
+    sprintf(buffer, M_GAME_END);
+
+    server_send(buffer);
+    char *response = server_read();
+    if (strncmp(response, M_OK, strlen(M_OK))) printf("reponse and sent message are incompatible!\n");
+  }
+
+  server_disconnect();
   TTF_Quit();
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
