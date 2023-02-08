@@ -13,6 +13,7 @@ M_OK="M_OK"
 M_GAME_START="M_GAME_START"
 M_GAME_END="M_GAME_END"
 M_PLAYER_MOVE="M_PLAYER_MOVE"
+M_DUMP_BOARD="M_DUMP_BOARD"
 
 PLAYER1="1"
 PLAYER2="2"
@@ -43,15 +44,20 @@ run_test_cmd "test1" "sends the game start signal to the server, expects a posit
 # test 2.1
 # M_PLAYER_MOVE ( +2 ) 
 print_pre_test_msg $M_PLAYER_MOVE $M_OK 
-run_test_cmd "test3" "moves the player by +2 units on the board, expects a positive M_OK response" $(echo "$M_PLAYER_MOVE|$PLAYER1|2" | nc -w 1 "$ESP32_SERVER_IP" "$ESP32_SERVER_PORT")
+run_test_cmd "test2.1" "moves the player by +2 units on the board, expects a positive M_OK response" $(echo "$M_PLAYER_MOVE|$PLAYER1|2" | nc -w 1 "$ESP32_SERVER_IP" "$ESP32_SERVER_PORT")
 
 # test 2.2
 # M_PLAYER_MOVE ( -2 ) 
 print_pre_test_msg $M_PLAYER_MOVE $M_OK 
-run_test_cmd "test3" "moves the player by -2 units on the board, expects a positive M_OK response" $(echo "$M_PLAYER_MOVE|$PLAYER1|-2" | nc -w 1 "$ESP32_SERVER_IP" "$ESP32_SERVER_PORT")
+run_test_cmd "test2.2" "moves the player by -2 units on the board, expects a positive M_OK response" $(echo "$M_PLAYER_MOVE|$PLAYER1|-2" | nc -w 1 "$ESP32_SERVER_IP" "$ESP32_SERVER_PORT")
+
+# test 3
+# M_DUMP_BOARD
+print_pre_test_msg $M_PLAYER_MOVE "left to manual verification"
+run_test_cmd "test3" "dumps the current state of the game board" $(echo "$M_DUMP_BOARD" | nc -w 1 "$ESP32_SERVER_IP" "$ESP32_SERVER_PORT")
 
 # WARNING: M_GAME_END test invokes `free()` so make sure that this test is called the last
-# test 3
+# test 4
 # M_GAME_END
 print_pre_test_msg $M_GAME_END $M_OK
 run_test_cmd "test2" "sends the game end signal to the server, expects a positive M_OK response - the game has ended correctly" $(echo "$M_GAME_END" | nc -w 1 "$ESP32_SERVER_IP" "$ESP32_SERVER_PORT")  
