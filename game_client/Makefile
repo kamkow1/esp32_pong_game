@@ -1,6 +1,6 @@
 # tool macros
 CC ?= gcc
-CFLAGS := -Werror -Wall `sdl2-config --cflags --libs`
+CFLAGS := -Werror -Wall `sdl2-config --cflags --libs` -lSDL2_ttf
 DBGFLAGS := -g
 COBJFLAGS := $(CFLAGS) -c
 
