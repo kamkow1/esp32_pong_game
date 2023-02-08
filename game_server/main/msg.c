@@ -6,12 +6,11 @@
 #include "unused.h"
 #include "game.h"
 
-// 1. messages incoming from the client
-// 2. messages sent back from the client
 #define FOREACH_MSG(m)  \
     m(M_GAME_START)     \
     m(M_GAME_END)       \
     m(M_PLAYER_MOVE)    \
+    m(M_DUMP_BOARD)     \
     m(M_OK)             \
     m(M_FAIL)           \
     m(M_UNKNOWN_ACTION) \
@@ -23,13 +22,8 @@
 #define ARG_SPLIT_DELIM "|"
 #define ARGS_END_FLAG   "#ARGS_END"
 
-typedef enum {
-    FOREACH_MSG(GENERATE_ENUM)
-} Msg;
-
-static char *MSG_STRING[] = {
-   FOREACH_MSG(GENERATE_STRING) 
-};
+typedef enum { FOREACH_MSG(GENERATE_ENUM) } Msg;
+static char *MSG_STRING[] = { FOREACH_MSG(GENERATE_STRING) };
 
 void parse_message_format(char *rx_buffer, char **split_args)
 {
@@ -58,6 +52,17 @@ void process_message(char *rx_buffer, char *out_string)
     update_player(PLAYER1);
     update_player(PLAYER2);
     debug_print_board();
+
+  // handle M_DUMP_BOARD
+  } else if (!strncmp(rx_buffer, MSG_STRING[M_DUMP_BOARD], strlen(MSG_STRING[M_DUMP_BOARD]))) {
+    /*
+     * Format:
+     * <player-id>,<y>#<player-id>,<y>#<branch-length>
+     *
+     * TODO: dump ball info
+     */
+
+    sprintf(out_string, "%d,%d#%d,%d#%d", PLAYER1->id, PLAYER1->y, PLAYER2->id, PLAYER2->y, PLAYER_Y_SIZE);
 
   // handle M_PLAYER_MOVE
   } else if (!strncmp(rx_buffer, MSG_STRING[M_PLAYER_MOVE], strlen(MSG_STRING[M_PLAYER_MOVE]))) { 
