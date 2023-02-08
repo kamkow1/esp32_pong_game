@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
   EXIT_ON_ERROR(argc < 3, "please provide player the names: ./esp32_pong_game_client player1 player2");
 
   EXIT_ON_ERROR(SDL_Init(SDL_INIT_VIDEO) < 0, "failed to initialize SDL2: %s\n", SDL_GetError());
+  EXIT_ON_ERROR(TTF_Init() < 0, "failed to initialize SDL2_ttf: %s\n", TTF_GetError());
 
   SDL_Window *window     = SDL_CreateWindow(WINDOW_TITLE, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
   EXIT_ON_ERROR(!window, "failed to crate the game window: %s\n", SDL_GetError());
@@ -37,37 +38,32 @@ int main(int argc, char *argv[])
   SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
   EXIT_ON_ERROR(!renderer, "failed to crate the game renderer: %s\n", SDL_GetError());
 
-  EXIT_ON_ERROR(TTF_Init() < 0, "failed to initialize SDL2_ttf: %s\n", TTF_GetError());
-
-
   SDL_Event event;
   bool quit         = false;
   bool game_started = false;
+
+  /*
+   * Game control keys:
+   * Escape/Q   - close the window
+   * Space      - start the game
+   */
+
   while (!quit) {
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
-        case SDL_QUIT: {
-          quit = true;
-          break;
-        }
-
+        case SDL_QUIT: { quit = true; break; }
         case SDL_KEYDOWN: {
           switch (event.key.keysym.sym) {
-            case SDLK_q: {
-              quit = true;
-              break;               
-            }
-            case SDLK_SPACE: {
-              printf("player1 = %s\n", argv[1]);
-              printf("player2 = %s\n", argv[2]);
-              game_started = true; 
-            }
+            case SDLK_q:      { quit = true; break; }
+            case SDLK_ESCAPE: { quit = true; break; }
+            case SDLK_SPACE:  { if (!game_started) game_started = true; }
           }  
         }
       } 
     }
 
     SDL_Surface *surface = SDL_GetWindowSurface(window);
+    // set game background color to #181818
     SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 18, 18, 18));
 
     if (!game_started) {
