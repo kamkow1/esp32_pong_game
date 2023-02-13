@@ -6,13 +6,11 @@
 // messages
 #define M_GAME_START  "M_GAME_START"
 #define M_GAME_END    "M_GAME_END"
+#define M_DUMP_BOARD  "M_DUMP_BOARD"
 
 #define M_OK          "M_OK"
 #define M_FAIL        "M_FAIL"
 
-void server_connect();
-void server_send(const char *msg);
-char *server_read();
-void server_disconnect();
+char *server_send_and_read(const char *msg); 
 
 #endif
