@@ -53,7 +53,7 @@ run_test_cmd "test2.2" "moves the player by -2 units on the board, expects a pos
 
 # test 3
 # M_DUMP_BOARD
-print_pre_test_msg $M_PLAYER_MOVE "left to manual verification"
+print_pre_test_msg $M_DUMP_BOARD "left to manual verification"
 run_test_cmd "test3" "dumps the current state of the game board" $(echo "$M_DUMP_BOARD" | nc -w 1 "$ESP32_SERVER_IP" "$ESP32_SERVER_PORT")
 
 # WARNING: M_GAME_END test invokes `free()` so make sure that this test is called the last

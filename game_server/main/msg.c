@@ -57,12 +57,12 @@ void process_message(char *rx_buffer, char *out_string)
   } else if (!strncmp(rx_buffer, MSG_STRING[M_DUMP_BOARD], strlen(MSG_STRING[M_DUMP_BOARD]))) {
     /*
      * Format:
-     * <player-id>,<y>#<player-id>,<y>#<branch-length>
+     * <player1-y>#<player-2y>#<branch-length>
      *
      * TODO: dump ball info
      */
 
-    sprintf(out_string, "%d,%d#%d,%d#%d", PLAYER1->id, PLAYER1->y, PLAYER2->id, PLAYER2->y, PLAYER_Y_SIZE);
+    sprintf(out_string, "%d,%d,%d", PLAYER1->y, PLAYER2->y, PLAYER_Y_SIZE);
 
   // handle M_PLAYER_MOVE
   } else if (!strncmp(rx_buffer, MSG_STRING[M_PLAYER_MOVE], strlen(MSG_STRING[M_PLAYER_MOVE]))) { 
