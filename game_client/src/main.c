@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "error.h"
 #include "server.h"
@@ -15,6 +16,8 @@
 #define FONT_PATH     "VictorMono-Regular.ttf"
 #define FONT_SIZE     32 
 
+#define FPS           60
+
 void draw_text(SDL_Surface *screen, const char *text, int size, int x, int y, SDL_Color fg, SDL_Color bg)
 {
   TTF_Font *font = TTF_OpenFont(FONT_PATH, size);
@@ -25,6 +28,35 @@ void draw_text(SDL_Surface *screen, const char *text, int size, int x, int y, SD
   SDL_BlitSurface(text_surface, NULL, screen, &text_loc);
   SDL_FreeSurface(text_surface);
   TTF_CloseFont(font);
+}
+
+typedef struct {
+  size_t player1_y;
+  size_t player2_y;
+  size_t player_branch_len;
+} Game_Info;
+
+Game_Info get_updated_game_info()
+{
+  Game_Info info;
+
+  char buffer[MSG_BUFFER_MAX];
+  buffer[MSG_BUFFER_MAX] = '\0';
+  sprintf(buffer, M_DUMP_BOARD);
+
+  char *response = server_send_and_read(buffer);
+
+  int i = 0;
+  for (char *c = strtok(response, ","); c != NULL; c = strtok(NULL, ",")) {
+    switch (i) {
+      case 0: info.player1_y = atoi(c);         break;
+      case 1: info.player2_y = atoi(c);         break;
+      case 2: info.player_branch_len = atoi(c); break;
+    }
+    i++;
+  }
+
+  return info;
 }
 
 int main(int argc, char *argv[])
@@ -43,7 +75,8 @@ int main(int argc, char *argv[])
   SDL_Event event;
   bool quit           = false;
   bool game_started   = false;
-  bool server_started = false;
+  Game_Info game_info;
+  (void)game_info;
 
   /*
    * Game control keys:
@@ -52,17 +85,13 @@ int main(int argc, char *argv[])
    */
 
   while (!quit) {
-    if (!server_started && game_started) { 
-      server_started = true; 
-      server_connect();
-
+    if (!game_started) { 
       char buffer[MSG_BUFFER_MAX];
       buffer[MSG_BUFFER_MAX] = '\0';
       sprintf(buffer, M_GAME_START"|%s|%s", argv[1], argv[2]);
 
-      server_send(buffer);
-      char *response = server_read();
-      if (strncmp(response, M_OK, strlen(M_OK))) printf("reponse and sent message are incompatible!\n");
+      char *response = server_send_and_read(buffer);
+      if (strncmp(response, M_OK, strlen(M_OK))) printf(M_GAME_START": reponse and sent message are incompatible!\n");
     }
 
     while (SDL_PollEvent(&event)) {
@@ -75,7 +104,9 @@ int main(int argc, char *argv[])
             case SDLK_SPACE:  { if (!game_started) game_started = true; }
           }  
         }
-      } 
+      }
+
+      if (game_started) game_info = get_updated_game_info(), SDL_Delay(1000/FPS);
     }
 
     SDL_Surface *surface = SDL_GetWindowSurface(window);
@@ -88,22 +119,22 @@ int main(int argc, char *argv[])
       SDL_Color bg = {0x00, 0x00, 0x00};
       draw_text(surface, "press <space> to start the game", FONT_SIZE, WINDOW_WIDTH/2 - FONT_SIZE - 240, WINDOW_HEIGHT/2 - FONT_SIZE, fg, bg);
     }
+  
 
     SDL_UpdateWindowSurface(window);
+    SDL_Delay(1000/FPS);
   }
 
   if (game_started) {
     // end the game
     char buffer[MSG_BUFFER_MAX];
     buffer[MSG_BUFFER_MAX] = '\0';
-    sprintf(buffer, M_GAME_END);
+    sprintf(buffer, "%s", M_GAME_END);
 
-    server_send(buffer);
-    char *response = server_read();
-    if (strncmp(response, M_OK, strlen(M_OK))) printf("reponse and sent message are incompatible!\n");
+    char *response = server_send_and_read(buffer);
+    if (strncmp(response, M_OK, strlen(M_OK))) printf(M_GAME_END": reponse and sent message are incompatible!\n");
   }
 
-  server_disconnect();
   TTF_Quit();
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
