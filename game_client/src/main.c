@@ -9,32 +9,53 @@
 #include "error.h"
 #include "server.h"
 
-#define WINDOW_WIDTH  800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH  1280
+#define WINDOW_HEIGHT 960
 #define WINDOW_TITLE  "esp32 pong game client"
 
 #define FONT_PATH     "VictorMono-Regular.ttf"
-#define FONT_SIZE     32 
+#define FONT_SIZE     60 
 
 #define FPS           60
-
-void draw_text(SDL_Surface *screen, const char *text, int size, int x, int y, SDL_Color fg, SDL_Color bg)
-{
-  TTF_Font *font = TTF_OpenFont(FONT_PATH, size);
-  EXIT_ON_ERROR(!font, "failed to load the game font: "FONT_PATH"\n");
-
-  SDL_Surface *text_surface = TTF_RenderText_Shaded(font, text, fg, bg);
-  SDL_Rect text_loc = {x, y, 0, 0};
-  SDL_BlitSurface(text_surface, NULL, screen, &text_loc);
-  SDL_FreeSurface(text_surface);
-  TTF_CloseFont(font);
-}
+#define BASE_PLAYER_X 20
 
 typedef struct {
   size_t player1_y;
   size_t player2_y;
   size_t player_branch_len;
 } Game_Info;
+
+void draw_text(SDL_Renderer *renderer, const char *text, int size, int x, int y, SDL_Color fg, SDL_Color bg)
+{
+  TTF_Font *font = TTF_OpenFont(FONT_PATH, size);
+  EXIT_ON_ERROR(!font, "failed to load the game font: "FONT_PATH"\n");
+
+  SDL_Surface *text_surface = TTF_RenderText_Shaded(font, text, fg, bg);
+
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+  SDL_Rect msg_rect = {
+    .x = x, 
+    .y = y, 
+    .w = WINDOW_WIDTH, 
+    .h = 100
+  };
+  SDL_RenderCopy(renderer, texture, NULL, &msg_rect);
+
+  SDL_FreeSurface(text_surface);
+  SDL_DestroyTexture(texture);
+  TTF_CloseFont(font);
+}
+
+void draw_players(SDL_Renderer *renderer, Game_Info info)
+{
+  printf("br len: %ld\n", info.player_branch_len);
+
+  SDL_Rect rect1 = {BASE_PLAYER_X, WINDOW_HEIGHT/2 - info.player1_y - info.player_branch_len, 50, info.player_branch_len*100};
+  SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 0xff);
+  SDL_RenderDrawRect(renderer, &rect1);
+  
+  SDL_SetRenderDrawColor(renderer, 0x18, 0x18, 0x18, 0xff);
+}
 
 Game_Info get_updated_game_info()
 {
@@ -75,8 +96,9 @@ int main(int argc, char *argv[])
   SDL_Event event;
   bool quit           = false;
   bool game_started   = false;
+  bool end_game_after = false;
+  bool start_updating = false;
   Game_Info game_info;
-  (void)game_info;
 
   /*
    * Game control keys:
@@ -85,15 +107,6 @@ int main(int argc, char *argv[])
    */
 
   while (!quit) {
-    if (!game_started) { 
-      char buffer[MSG_BUFFER_MAX];
-      buffer[MSG_BUFFER_MAX] = '\0';
-      sprintf(buffer, M_GAME_START"|%s|%s", argv[1], argv[2]);
-
-      char *response = server_send_and_read(buffer);
-      if (strncmp(response, M_OK, strlen(M_OK))) printf(M_GAME_START": reponse and sent message are incompatible!\n");
-    }
-
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_QUIT: { quit = true; break; }
@@ -105,27 +118,43 @@ int main(int argc, char *argv[])
           }  
         }
       }
+    }
+   
+    // start the game
+    if (game_started) { 
+      char buffer[MSG_BUFFER_MAX];
+      buffer[MSG_BUFFER_MAX] = '\0';
+      sprintf(buffer, M_GAME_START"|%s|%s", argv[1], argv[2]);
 
-      if (game_started) game_info = get_updated_game_info(), SDL_Delay(1000/FPS);
+      char *response = server_send_and_read(buffer);
+      if (strncmp(response, M_OK, strlen(M_OK))) printf(M_GAME_START": reponse and sent message are incompatible!\n");
+
+      game_started = false;
+      end_game_after = true;
+      start_updating = true;
     }
 
-    SDL_Surface *surface = SDL_GetWindowSurface(window);
     // set game background color to #181818
-    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 18, 18, 18));
+    SDL_SetRenderDrawColor(renderer, 0x18, 0x18, 0x18, 0xff);
+    SDL_RenderClear(renderer);
+
+    if (start_updating) game_info = get_updated_game_info(), draw_players(renderer, game_info);
 
     if (!game_started) {
       // draw the game start text
       SDL_Color fg = {0xff, 0xff, 0xff};
       SDL_Color bg = {0x00, 0x00, 0x00};
-      draw_text(surface, "press <space> to start the game", FONT_SIZE, WINDOW_WIDTH/2 - FONT_SIZE - 240, WINDOW_HEIGHT/2 - FONT_SIZE, fg, bg);
+
+      (void)fg;
+      (void)bg;
+      draw_text(renderer, "press <space> to start the game", FONT_SIZE, 0, WINDOW_HEIGHT/2 - FONT_SIZE, fg, bg);
     }
   
 
-    SDL_UpdateWindowSurface(window);
-    SDL_Delay(1000/FPS);
+    SDL_RenderPresent(renderer);
   }
 
-  if (game_started) {
+  if (end_game_after) {
     // end the game
     char buffer[MSG_BUFFER_MAX];
     buffer[MSG_BUFFER_MAX] = '\0';
