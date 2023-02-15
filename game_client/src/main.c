@@ -1,3 +1,5 @@
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_surface.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -46,13 +48,19 @@ void draw_text(SDL_Renderer *renderer, const char *text, int size, int x, int y,
   TTF_CloseFont(font);
 }
 
+#define PLAYER_RECT_WIDTH 30
+
 void draw_players(SDL_Renderer *renderer, Game_Info info)
 {
-  // printf("br len: %ld\n", info.player_branch_len);
-
-  SDL_Rect rect1 = {BASE_PLAYER_X, WINDOW_HEIGHT/2 - info.player1_y - info.player_branch_len, 50, info.player_branch_len*100};
   SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 0xff);
+
+  SDL_Rect rect1 = {BASE_PLAYER_X, WINDOW_HEIGHT/2 - info.player1_y - info.player_branch_len - info.player_branch_len*50, PLAYER_RECT_WIDTH, info.player_branch_len*100};
+  SDL_RenderFillRect(renderer, &rect1);
   SDL_RenderDrawRect(renderer, &rect1);
+  
+  SDL_Rect rect2 = {WINDOW_WIDTH - BASE_PLAYER_X - PLAYER_RECT_WIDTH, WINDOW_HEIGHT/2 - info.player2_y - info.player_branch_len - info.player_branch_len*50, PLAYER_RECT_WIDTH, info.player_branch_len*100};
+  SDL_RenderFillRect(renderer, &rect2);
+  SDL_RenderDrawRect(renderer, &rect2);
   
   SDL_SetRenderDrawColor(renderer, 0x18, 0x18, 0x18, 0xff);
 }
