@@ -48,7 +48,7 @@ void draw_text(SDL_Renderer *renderer, const char *text, int size, int x, int y,
 
 void draw_players(SDL_Renderer *renderer, Game_Info info)
 {
-  printf("br len: %ld\n", info.player_branch_len);
+  // printf("br len: %ld\n", info.player_branch_len);
 
   SDL_Rect rect1 = {BASE_PLAYER_X, WINDOW_HEIGHT/2 - info.player1_y - info.player_branch_len, 50, info.player_branch_len*100};
   SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0xff, 0xff);
@@ -140,13 +140,10 @@ int main(int argc, char *argv[])
 
     if (start_updating) game_info = get_updated_game_info(), draw_players(renderer, game_info);
 
-    if (!game_started) {
+    if (!start_updating) {
       // draw the game start text
       SDL_Color fg = {0xff, 0xff, 0xff};
       SDL_Color bg = {0x00, 0x00, 0x00};
-
-      (void)fg;
-      (void)bg;
       draw_text(renderer, "press <space> to start the game", FONT_SIZE, 0, WINDOW_HEIGHT/2 - FONT_SIZE, fg, bg);
     }
   
